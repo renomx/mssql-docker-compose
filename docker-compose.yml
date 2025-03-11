@@ -30,10 +30,7 @@ services:
             - mssql-server-shared:/var/opt/mssql/shared
             - mssql-server-backup:/var/opt/mssql/backup
         networks:
-          sqlaoag:
-            ipv4_address: 192.168.1.2
-        extra_hosts:
-            - "ag-listener:192.168.1.100"
+            - sqlaoag
 
     db2:
         container_name: db2
@@ -54,15 +51,10 @@ services:
         depends_on:
             - db1
         networks:
-          sqlaoag:
-            ipv4_address: 192.168.1.3
+            - sqlaoag
 
 volumes:
     mssql-server-shared:
     mssql-server-backup:            
 networks:
     sqlaoag:
-      driver: bridge
-      ipam:          
-        config:
-          - subnet: 192.168.1.0/24      
