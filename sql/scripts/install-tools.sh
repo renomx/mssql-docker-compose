@@ -4,7 +4,7 @@ if [ $1 = "True" ]; then
     # Update the list of packages
     apt-get update
     # Install pre-requisite packages.
-    apt-get install -y wget apt-transport-https software-properties-common
+    apt-get install -y wget apt-transport-https software-properties-common vim
     # Download the Microsoft repository GPG keys
     wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
     # Register the Microsoft repository GPG keys

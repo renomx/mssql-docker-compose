@@ -1,4 +1,4 @@
-#!bin/sh
+#!bin/bash
 
 echo "#######    STARTED CONFIGURATION   #######"
 
@@ -7,7 +7,7 @@ SLEEP_TIME=$INIT_WAIT
 #run the setup script to create the DB and the schema in the DB
 #if this is the primary node, remove the certificate files.
 #if docker containers are stopped, but volumes are not removed, this certificate will be persisted
-echo "<#############>    IS_AOAG_PRIMARY: ${IS_AOAG_PRIMARY}"
+echo "<#############>    IS_AOAG_PRIMARY: ${IS_AOAG_PRIMARY}    <#############>"
 #if [ $IS_AOAG_PRIMARY = "true" ]
 #then
 #     SQL_SCRIPT="aoag_primary.sql"
@@ -22,10 +22,33 @@ echo "<#############>    IS_AOAG_PRIMARY: ${IS_AOAG_PRIMARY}"
 
 BAK_FILE="AdventureWorksLT2019.bak"
 
-echo "<#############>    SQLSCRIPT: ${SQL_SCRIPT}"
-
-echo "<#############>    Moving Backup File ${BAK_FILE} to ${BACKUP_PATH}"
+echo "<#############>    Moving Backup File ${BAK_FILE} to ${BACKUP_PATH}    <#############>"
 mv  $BAK_FILE $BACKUP_PATH
+
+sleep ${SLEEP_TIME}
+
+echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+. ~/.bashrc
+if [ "$IS_AOAG_PRIMARY" = 1 ]
+then
+    SQL_SCRIPT="restore_primary.sql"
+
+    echo "<#############>   moving db1 restore script ${SCRIPTS_PATH}   <#############>"
+    mv $SQL_SCRIPT $SCRIPTS_PATH
+
+    echo "---> Restoring AdventureWorksLT2019 on db1 using port $TCP_PORT using $SCRIPTS_PATH/$SQL_SCRIPT"
+    echo "<#############>    running set up script ${SQL_SCRIPT}    <#############>"
+    sqlcmd -S localhost,$TCP_PORT -U sa -P $SA_PASSWORD -d master -i "$SCRIPTS_PATH/$SQL_SCRIPT" -C
+ else
+    SQL_SCRIPT="restore_secondary.sql"
+
+    echo "---> Restoring AdventureWorksLT2019 on db2 using port $TCP_PORT using $SCRIPTS_PATH/$SQL_SCRIPT"
+    echo "<#############>   moving db2 restore script ${SCRIPTS_PATH}   <#############>"
+    mv $SQL_SCRIPT $SCRIPTS_PATH
+
+    echo "<#############>    running set up script ${SQL_SCRIPT}    <#############>"
+    sqlcmd -S localhost,$TCP_PORT -U sa -P $SA_PASSWORD -d master -i "$SCRIPTS_PATH/$SQL_SCRIPT" -C
+fi
 
 # systemctl restart mssql-server.service
 

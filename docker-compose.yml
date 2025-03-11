@@ -9,6 +9,7 @@ x-service-environment: &common-variables
     HADR_CERT_PASSWORD: ${HADR_CERT_PASSWORD}
     SHARED_PATH: ${SHARED_PATH}
     BACKUP_PATH: ${BACKUP_PATH}
+    SCRIPTS_PATH: ${SCRIPTS_PATH}
 
 services:
 
@@ -21,14 +22,15 @@ services:
                 - INSTALL_TOOLS=${INSTALL_TOOLS}
         environment:
             <<: *common-variables
-            IS_AOAG_PRIMARY: True
+            IS_AOAG_PRIMARY: 1
             TCP_PORT: ${DB1_TCP_PORT}
             PARTNER_HOSTNAME: db2
         ports:
             - ${DB1_TCP_PORT}:${DB1_TCP_PORT}
         volumes:
-            - mssql-server-shared:/var/opt/mssql/shared
-            - mssql-server-backup:/var/opt/mssql/backup
+            - mssql-server-shared:${SHARED_PATH}
+            - mssql-server-backup:${BACKUP_PATH}
+            - mssql-server-scripts:${SCRIPTS_PATH}
         networks:
             - sqlaoag
 
@@ -46,8 +48,9 @@ services:
         ports:
             - ${DB2_TCP_PORT}:${DB2_TCP_PORT}
         volumes:
-            - mssql-server-shared:/var/opt/mssql/shared
-            - mssql-server-backup:/var/opt/mssql/backup
+            - mssql-server-shared:${SHARED_PATH}
+            - mssql-server-backup:${BACKUP_PATH}
+            - mssql-server-scripts:${SCRIPTS_PATH}
         depends_on:
             - db1
         networks:
@@ -55,6 +58,7 @@ services:
 
 volumes:
     mssql-server-shared:
-    mssql-server-backup:            
+    mssql-server-backup:  
+    mssql-server-scripts:          
 networks:
     sqlaoag:
