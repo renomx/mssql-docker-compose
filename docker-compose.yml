@@ -17,7 +17,7 @@ services:
         container_name: db1
         hostname: db1
         build: 
-            context: .\sql
+            context: ./sql
             args:
                 - INSTALL_TOOLS=${INSTALL_TOOLS}
         environment:
@@ -38,7 +38,7 @@ services:
         container_name: db2
         hostname: db2
         build: 
-            context: .\sql
+            context: ./sql
             args:
                 - INSTALL_TOOLS=${INSTALL_TOOLS}
         environment:
